@@ -6,6 +6,20 @@
 #define MOTOR_B_PWM  38
 #define MOTOR_B_DIR  36
 
+#define LEFT      'a'
+#define RIGHT     'd'
+#define FORWARD   'w'
+#define BACKWARD  's'
+#define INFO      'i'
+
+#define MTRINC 100
+#define MTRDEC -100
+#define MOTOR_CONTROL(x, y) setSpeed(shit_motor ,shit_motor.velocity + x); \
+                            setSpeed(zuck_motor ,zuck_motor.velocity + y)
+
+// #define INSULT_USER
+// #define DEMO
+
 // 255 max 0 min
 #define POWER_LVL 125
 
@@ -41,8 +55,16 @@ void setup()
 
 }
 
+#ifdef DEMO
+
 void loop()
 {
+
+#ifdef INSULT_USER
+  if(Serial.available()){
+    Serial.printf("I dont care what you say: %s\n", Serial.readString());
+  }
+#endif
 //  int x = random(-255,255);
 int x, y;
 if(shit_motor.velocity == 0) {
@@ -61,6 +83,57 @@ if(zuck_motor.velocity == 0) {
  Serial.printf("set the speed to %d\n", x);
  delay(3000);
 }
+
+#else
+
+void loop()
+{
+
+#ifdef INSULT_USER
+  if(Serial.available()){
+    Serial.printf("I dont care what you say: %s\n", Serial.readString());
+  }
+#else
+if(Serial.available()){
+  char c = Serial.read();
+  if(LEFT == c){
+    // MOTOR_CONTROL( MTRDEC,  MTRINC);
+    Serial.println("LEFT");
+    setSpeed(shit_motor ,shit_motor.velocity - MTRINC);
+    setSpeed(zuck_motor ,zuck_motor.velocity + MTRINC);
+
+  } else if(RIGHT == c) {
+    // MOTOR_CONTROL(  MTRINC, MTRDEC);
+    Serial.println("RIGHT");
+    setSpeed(shit_motor ,shit_motor.velocity + MTRINC);
+    setSpeed(zuck_motor ,zuck_motor.velocity - MTRINC);
+
+  } else if(FORWARD == c) {
+    // MOTOR_CONTROL(  MTRINC,  MTRINC);
+    Serial.println("FORWARD");
+    setSpeed(shit_motor ,shit_motor.velocity + MTRINC);
+    setSpeed(zuck_motor ,zuck_motor.velocity + MTRINC);
+    
+  }else if(BACKWARD == c) {
+    // MOTOR_CONTROL( MTRDEC, MTRDEC);
+    Serial.println("BACK");
+    setSpeed(shit_motor ,shit_motor.velocity - MTRINC);
+    setSpeed(zuck_motor ,zuck_motor.velocity - MTRINC);
+
+  }else if(INFO == c) {
+    Serial.printf("Motor values are (M1: %d ,M2: %d )\n", shit_motor.velocity, zuck_motor.velocity);
+  }
+  
+  else{
+    Serial.printf("Movement controls are %c%c%c%c\n", FORWARD, LEFT, BACKWARD, RIGHT);
+  }
+}
+#endif
+//  int x = random(-255,255);
+
+}
+
+#endif
 
 
 
@@ -88,6 +161,6 @@ int setSpeed(MOTOR &p_motor, int velocity){
     speed = velocity;
   }
   digitalWrite(p_motor.phase,dir);
-  analogWrite(p_motor.enable, velocity);
+  analogWrite(p_motor.enable, speed);
   return 0;
 }
