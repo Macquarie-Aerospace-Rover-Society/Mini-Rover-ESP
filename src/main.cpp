@@ -1,3 +1,4 @@
+#ifdef RUNME
 #include <Arduino.h>
 
 #define MOTOR_A_PWM  39
@@ -164,3 +165,5 @@ int setSpeed(MOTOR &p_motor, int velocity){
   analogWrite(p_motor.enable, speed);
   return 0;
 }
+
+#endif RUNME
