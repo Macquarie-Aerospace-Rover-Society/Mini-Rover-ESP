@@ -1,166 +1,172 @@
 #include <Arduino.h>
 
-#define MOTOR_A_PWM  39
-#define MOTOR_A_DIR  37
+// Motor pin stubs - Replace with actual pin numbers
+/* 
+ * https://github.com/Freenove/Freenove_Basic_Starter_Kit_for_ESP32_S3
+ * PWM pins capable pins are all pins apparently
+ * STAR pins (suspected PSRAM / FLASH pins) are 35, 36,37
+ * 
+ * PWM pins chosen 41,42,43,44 : PIN 41 on silkscreen 
+ * DIR pins chosen 4 ,5 ,6 ,7  : PIN 4  on silkscreen
+ */
 
-#define MOTOR_B_PWM  38
-#define MOTOR_B_DIR  36
+#define MOTOR_A_PWM 41  // Replace this
+#define MOTOR_A_DIR 4   // Replace this
 
-#define LEFT      'a'
-#define RIGHT     'd'
-#define FORWARD   'w'
-#define BACKWARD  's'
-#define INFO      'i'
+#define MOTOR_B_PWM 42  // Replace this
+#define MOTOR_B_DIR 5   // Replace this
 
-#define MTRINC 100
-#define MTRDEC -100
-#define MOTOR_CONTROL(x, y) setSpeed(shit_motor ,shit_motor.velocity + x); \
-                            setSpeed(zuck_motor ,zuck_motor.velocity + y)
+#define MOTOR_C_PWM 2  // Replace this
+#define MOTOR_C_DIR 6   // Replace this
 
-// #define INSULT_USER
-// #define DEMO
+#define MOTOR_D_PWM 1  // Replace this
+#define MOTOR_D_DIR 7   // Replace this
+
+// Control keys
+#define LEFT 'a'
+#define RIGHT 'd'
+#define FORWARD 'w'
+#define BACKWARD 's'
+#define INFO 'i'
+#define HALT 'c'
+
+// 5 Speed Levels - 255/5 => 51
+#define MTRINC 51
+#define MTRDEC -51
+
+// PWM max value
+#define PWMMAX 255
+
+// Low or HIGH
+#define DEFAULT_ORIENTATION HIGH
+
+#define MOTOR_CONTROL(x, y) \
+  setSpeed(motor1, motor1.velocity + x); \
+  setSpeed(motor2, motor2.velocity + y); \
+  setSpeed(motor3, motor3.velocity + x); \
+  setSpeed(motor4, motor4.velocity + y)
 
 // 255 max 0 min
-#define POWER_LVL 125
+#define POWER_LVL 255
 
 //##############################
 /* Type defs */
 
-typedef struct mah_motor{
+typedef struct mah_motor {
   int velocity;
-  uint8_t phase, enable; // Phase is the direction and enable pwm
+  uint8_t phase, enable;  // Phase is the direction and enable pwm
+  uint8_t orientation;
 } MOTOR;
 
 //##############################
-/* Function defintions */
+/* Function definitions */
 
-int setSpeed(MOTOR &p_motor, int velocity);
 void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin);
+int setSpeed(MOTOR &p_motor, int velocity);
+int motor_flip_orientation(MOTOR &p_motor);
 
 //##############################
 /* Global vars */
 
-MOTOR shit_motor;
-MOTOR zuck_motor;
+MOTOR motor1;
+MOTOR motor2;
+MOTOR motor3;
+MOTOR motor4;
 
 //##############################
 /* Main program entry point */
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
-  motor_init(shit_motor, MOTOR_A_DIR, MOTOR_A_PWM);
-  motor_init(zuck_motor, MOTOR_B_DIR, MOTOR_B_PWM);
+
+  // Initialize motors - Update pin values as needed
+  motor_init(motor1, MOTOR_A_DIR, MOTOR_A_PWM);
+  motor_init(motor2, MOTOR_B_DIR, MOTOR_B_PWM);
+  motor_init(motor3, MOTOR_C_DIR, MOTOR_C_PWM);
+  motor_init(motor4, MOTOR_D_DIR, MOTOR_D_PWM);
+  motor_flip_orientation(motor2);
+
   Serial.println("HELLO TERMINAL");
-
 }
 
-#ifdef DEMO
-
-void loop()
-{
-
-#ifdef INSULT_USER
-  if(Serial.available()){
-    Serial.printf("I dont care what you say: %s\n", Serial.readString());
-  }
-#endif
-//  int x = random(-255,255);
-int x, y;
-if(shit_motor.velocity == 0) {
-  x = POWER_LVL;
-} else {
-  x = shit_motor.velocity * -1;
-}
-if(zuck_motor.velocity == 0) {
-  y = -POWER_LVL;
-} else {
-  y = zuck_motor.velocity * -1;
-}
-
- setSpeed(shit_motor, x);
- setSpeed(zuck_motor, y);
- Serial.printf("set the speed to %d\n", x);
- delay(3000);
-}
-
-#else
-
-void loop()
-{
-
-#ifdef INSULT_USER
-  if(Serial.available()){
-    Serial.printf("I dont care what you say: %s\n", Serial.readString());
-  }
-#else
-if(Serial.available()){
-  char c = Serial.read();
-  if(LEFT == c){
-    // MOTOR_CONTROL( MTRDEC,  MTRINC);
-    Serial.println("LEFT");
-    setSpeed(shit_motor ,shit_motor.velocity - MTRINC);
-    setSpeed(zuck_motor ,zuck_motor.velocity + MTRINC);
-
-  } else if(RIGHT == c) {
-    // MOTOR_CONTROL(  MTRINC, MTRDEC);
-    Serial.println("RIGHT");
-    setSpeed(shit_motor ,shit_motor.velocity + MTRINC);
-    setSpeed(zuck_motor ,zuck_motor.velocity - MTRINC);
-
-  } else if(FORWARD == c) {
-    // MOTOR_CONTROL(  MTRINC,  MTRINC);
-    Serial.println("FORWARD");
-    setSpeed(shit_motor ,shit_motor.velocity + MTRINC);
-    setSpeed(zuck_motor ,zuck_motor.velocity + MTRINC);
+void loop() {
+  if (Serial.available()) {
     
-  }else if(BACKWARD == c) {
-    // MOTOR_CONTROL( MTRDEC, MTRDEC);
-    Serial.println("BACK");
-    setSpeed(shit_motor ,shit_motor.velocity - MTRINC);
-    setSpeed(zuck_motor ,zuck_motor.velocity - MTRINC);
-
-  }else if(INFO == c) {
-    Serial.printf("Motor values are (M1: %d ,M2: %d )\n", shit_motor.velocity, zuck_motor.velocity);
-  }
-  
-  else{
-    Serial.printf("Movement controls are %c%c%c%c\n", FORWARD, LEFT, BACKWARD, RIGHT);
+    char c = Serial.read();
+    if (LEFT == c) {
+      Serial.println("LEFT");
+      setSpeed(motor1, motor1.velocity + MTRINC);
+      setSpeed(motor2, motor2.velocity + MTRINC);
+      setSpeed(motor3, motor3.velocity - MTRINC);
+      setSpeed(motor4, motor4.velocity - MTRINC);
+    } else if (RIGHT == c) {
+      Serial.println("RIGHT");
+      setSpeed(motor1, motor1.velocity - MTRINC);
+      setSpeed(motor2, motor2.velocity - MTRINC);
+      setSpeed(motor3, motor3.velocity + MTRINC);
+      setSpeed(motor4, motor4.velocity + MTRINC);
+    } else if (FORWARD == c) {
+      Serial.println("FORWARD");
+      setSpeed(motor1, motor1.velocity + MTRINC);
+      setSpeed(motor2, motor2.velocity + MTRINC);
+      setSpeed(motor3, motor3.velocity + MTRINC);
+      setSpeed(motor4, motor4.velocity + MTRINC);
+    } else if (BACKWARD == c) {
+      Serial.println("BACKWARD");
+      setSpeed(motor1, motor1.velocity - MTRINC);
+      setSpeed(motor2, motor2.velocity - MTRINC);
+      setSpeed(motor3, motor3.velocity - MTRINC);
+      setSpeed(motor4, motor4.velocity - MTRINC);
+    } else if (HALT == c) {
+      Serial.println("HALTING");
+      setSpeed(motor1, 0);
+      setSpeed(motor2, 0);
+      setSpeed(motor3, 0);
+      setSpeed(motor4, 0);
+    } else if (INFO == c) {
+      Serial.printf("Motor values: M1: %d, M2: %d, M3: %d, M4: %d\n", motor1.velocity, motor2.velocity, motor3.velocity, motor4.velocity);
+    } else {
+      Serial.printf("Controls: %c%c%c%c\n", FORWARD, LEFT, BACKWARD, RIGHT);
+    }
   }
 }
-#endif
-//  int x = random(-255,255);
-
-}
-
-#endif
-
-
 
 //##############################
 /* Function implementations */
 
-
-void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin){
+void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin) {
   p_motor.enable = pwm_pin;
   p_motor.phase = direction_pin;
 
-  pinMode(direction_pin, OUTPUT);
+  p_motor.orientation = DEFAULT_ORIENTATION;
 
+  pinMode(direction_pin, OUTPUT);
   setSpeed(p_motor, 0);
 }
 
-int setSpeed(MOTOR &p_motor, int velocity){
-  int dir = LOW;
+int setSpeed(MOTOR &p_motor, int velocity) {
+  if(velocity >  PWMMAX){
+    velocity = PWMMAX;
+  }
+  if(velocity < -(PWMMAX)){
+    velocity = -(PWMMAX);
+  }
+  uint8_t dir = p_motor.orientation;
   p_motor.velocity = velocity;
-  int speed;
-  if(velocity < 0){
+  uint8_t speed;
+  if (velocity < 0) {
     speed = velocity * -1;
-    dir = HIGH;
+    dir = !dir;
   } else {
     speed = velocity;
   }
-  digitalWrite(p_motor.phase,dir);
+
+  digitalWrite(p_motor.phase, dir);
   analogWrite(p_motor.enable, speed);
+  return 0;
+}
+
+int motor_flip_orientation(MOTOR &p_motor){
+  p_motor.orientation = !p_motor.orientation;
   return 0;
 }
