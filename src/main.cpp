@@ -139,7 +139,7 @@ void setup() {
   motor_init(motor2, MOTOR_B_DIR, MOTOR_B_PWM);
   motor_init(motor3, MOTOR_C_DIR, MOTOR_C_PWM);
   motor_init(motor4, MOTOR_D_DIR, MOTOR_D_PWM);
-  motor_flip_orientation(motor2);
+  motor_flip_orientation(motor3);
 
   motor_init(motor_base, MOTOR_ARM_SPIN_DIFF_A, MOTOR_ARM_SPIN_DIFF_B);
 

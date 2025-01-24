@@ -5,7 +5,7 @@
 #include <WebServer.h>
 
 // curl -X POST http://<your-esp-ip>/update -H "Content-Type: text/plain" -d "Hello, World!"
-// curl -X POST http://192.168.1.100/update -H "Content-Type: text/plain" -d "yyyuukkgg"
+// curl -X POST http://192.168.1.100/update -H "Content-Type: text/plain" -d "c"
 
 #define IP_NAME         "MARS_MINI" //Enter the router name 
 #define IP_PASSWORD     "marsmini"  //Enter the router password 
