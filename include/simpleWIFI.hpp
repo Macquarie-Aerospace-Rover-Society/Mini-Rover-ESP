@@ -59,6 +59,8 @@ void MARS_WIFI_init(void (*handle)(void)){
 
     server.on("/update", HTTP_POST, handle);
 
+    // server.on("/drive", HTTP_GET, HTTP_DRIVE);
+
     server.begin();
 
     Serial.println("WIFI setup complete");

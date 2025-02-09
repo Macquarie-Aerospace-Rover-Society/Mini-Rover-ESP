@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Drag and Send</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .container { position: relative; width: 300px; height: 300px; margin: 50px auto; }
+        .circle {
+            width: 300px; height: 300px;
+            border-radius: 50%; background: lightgray;
+            position: absolute; left: 0; top: 0;
+        }
+        .dot {
+            width: 20px; height: 20px;
+            background: red; border-radius: 50%;
+            position: absolute;
+            left: 140px; top: 140px; /* Start at center */
+            cursor: grab;
+        }
+    </style>
+</head>
+<body>
+    <h2>Click & Drag the Red Dot</h2>
+    <div class="container">
+        <div class="circle"></div>
+        <div class="dot" id="dot"></div>
+    </div>
+    <p id="coords">X: 0, Y: 0</p>
+
+    <script>
+        const dot = document.getElementById("dot");
+        const container = document.querySelector(".container");
+        const radius = 150; // Circle radius
+        const centerX = 150, centerY = 150; // Center of the circle
+
+        let dragging = false;
+
+        dot.addEventListener("mousedown", startDrag);
+        dot.addEventListener("touchstart", startDrag, { passive: false });
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("touchmove", drag, { passive: false });
+        document.addEventListener("mouseup", stopDrag);
+        document.addEventListener("touchend", stopDrag);
+
+        function startDrag(event) {
+            dragging = true;
+        }
+
+        function stopDrag() {
+            dragging = false;
+        }
+
+        function drag(event) {
+            if (!dragging) return;
+
+            event.preventDefault();
+            let clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            let clientY = event.touches ? event.touches[0].clientY : event.clientY;
+
+            let rect = container.getBoundingClientRect();
+            let x = clientX - rect.left - centerX;
+            let y = clientY - rect.top - centerY;
+
+            // Keep the dot inside the circle
+            let distance = Math.sqrt(x * x + y * y);
+            if (distance > radius - 10) { // Adjust for dot size
+                x = (x / distance) * (radius - 10);
+                y = (y / distance) * (radius - 10);
+            }
+
+            dot.style.left = `${x + centerX - 10}px`;
+            dot.style.top = `${y + centerY - 10}px`;
+
+            document.getElementById("coords").innerText = `X: ${x.toFixed(1)}, Y: ${y.toFixed(1)}`;
+
+            sendCoordinates(x, y);
+        }
+
+        function sendCoordinates(x, y) {
+            fetch('/position', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x: x, y: y })
+            })
+            .catch(err => console.error("Error:", err));
+        }
+    </script>
+</body>
+</html>
