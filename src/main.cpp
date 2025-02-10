@@ -14,17 +14,21 @@
  * DIR pins chosen 4 ,5 ,6 ,7  : PIN 4  on silkscreen
  */
 
-#define MOTOR_A_PWM 41  // Replace this
-#define MOTOR_A_DIR 4   // Replace this
+// Front-right
+#define MOTOR_C_PWM 41  // Replace this
+#define MOTOR_C_DIR 4   // Replace this
 
-#define MOTOR_B_PWM 42  // Replace this
-#define MOTOR_B_DIR 5   // Replace this
+// Back-right
+#define MOTOR_D_PWM 42  // Replace this
+#define MOTOR_D_DIR 5   // Replace this
 
-#define MOTOR_C_PWM 2  // Replace this
-#define MOTOR_C_DIR 6   // Replace this
+// Front-left
+#define MOTOR_A_PWM 2  // Replace this
+#define MOTOR_A_DIR 6  // Replace this
 
-#define MOTOR_D_PWM 1  // Replace this
-#define MOTOR_D_DIR 7   // Replace this
+// Back-left
+#define MOTOR_B_PWM 1  // Replace this
+#define MOTOR_B_DIR 7  // Replace this
 
 // M1A > M1B === FORWARD
 #define MOTOR_ARM_SPIN_DIFF_A 9  // M1A
@@ -139,7 +143,7 @@ void setup() {
   motor_init(motor2, MOTOR_B_DIR, MOTOR_B_PWM);
   motor_init(motor3, MOTOR_C_DIR, MOTOR_C_PWM);
   motor_init(motor4, MOTOR_D_DIR, MOTOR_D_PWM);
-  motor_flip_orientation(motor3);
+  motor_flip_orientation(motor1);
 
   motor_init(motor_base, MOTOR_ARM_SPIN_DIFF_A, MOTOR_ARM_SPIN_DIFF_B);
 

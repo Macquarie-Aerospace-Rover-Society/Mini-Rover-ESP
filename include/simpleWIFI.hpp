@@ -4,6 +4,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
+#include "drive-control.html.h"
+
 // curl -X POST http://<your-esp-ip>/update -H "Content-Type: text/plain" -d "Hello, World!"
 // curl -X POST http://192.168.1.100/update -H "Content-Type: text/plain" -d "c"
 
@@ -25,6 +27,12 @@ WebServer server(80);
 const char *ssid_AP     = IP_NAME; 
 const char *password_AP = IP_PASSWORD;
 
+//*
+void webpage_ui_handle(){
+    server.send(200, "text/html", HTTP_MARS_WIFI_UI);
+}
+// */
+
 void MARS_WIFI_simple_handle(){
     if (server.hasArg("plain")) {
         String payload = server.arg("plain");
@@ -33,6 +41,7 @@ void MARS_WIFI_simple_handle(){
         Serial.print(str);
         server.send(200, "text/plain", str);
     }
+    return;
 }
 
 void MARS_WIFI_init(void (*handle)(void)){
@@ -59,7 +68,7 @@ void MARS_WIFI_init(void (*handle)(void)){
 
     server.on("/update", HTTP_POST, handle);
 
-    // server.on("/drive", HTTP_GET, HTTP_DRIVE);
+    server.on("/drive", HTTP_GET, webpage_ui_handle);
 
     server.begin();
 
