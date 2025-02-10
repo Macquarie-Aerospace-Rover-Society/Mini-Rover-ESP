@@ -33,9 +33,32 @@ void webpage_ui_handle(){
 }
 // */
 
-void api_set_position_handle(){
+//##############################
+/* Position Code */
+//*
+#include <ArduinoJson.h>
 
+float dotX = 0, dotY = 0;  // Store position
+
+void api_get_position_handle(){
+    String json = "{\"x\":" + String(dotX) + ", \"y\":" + String(dotY) + "}";
+    server.send(200, "application/json", json);
 }
+
+void api_set_position_handle(){
+    if (server.hasArg("plain")) {
+        String data = server.arg("plain");
+        StaticJsonDocument<200> doc;
+        deserializeJson(doc, data);
+        dotX = doc["x"];
+        dotY = doc["y"];
+        Serial.printf("Updated Position -> X: %.1f, Y: %.1f\n", dotX, dotY);
+        server.send(200, "text/plain", "OK");
+    } else {
+        server.send(400, "text/plain", "Invalid Request");
+    }
+}
+// */
 
 void MARS_WIFI_simple_handle(){
     if (server.hasArg("plain")) {
