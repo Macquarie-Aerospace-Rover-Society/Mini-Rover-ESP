@@ -13,99 +13,62 @@ const char HTTP_MARS_WIFI_UI[] PROGMEM = R"rawliteral(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Drag and Send</title>
+    <title>Rover Control</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        .container { position: relative; width: 300px; height: 300px; margin: 50px auto; }
-        .circle {
-            width: 300px; height: 300px;
-            border-radius: 50%; background: lightgray;
-            position: absolute; left: 0; top: 0;
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
-        .dot {
-            width: 20px; height: 20px;
-            background: red; border-radius: 50%;
-            position: absolute;
-            left: 140px; top: 140px; /* Start at center */
-            cursor: grab;
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
         }
-        button { padding: 10px 20px; font-size: 16px; }
+        .btn {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+            font-weight: bold;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn:active {
+            background: #0056b3;
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
-    <h2>Click & Drag the Red Dot</h2>
-    <div class="container">
-        <div class="circle"></div>
-        <div class="dot" id="dot"></div>
+    <div class="dpad">
+        <div></div>
+        <button class="btn" onclick="sendCommand('w')" ontouchstart="sendCommand('w')">↑</button>
+        <div></div>
+        <button class="btn" onclick="sendCommand('a')" ontouchstart="sendCommand('a')">←</button>
+        <button class="btn" onclick="sendCommand('c')" ontouchstart="sendCommand('c')">■</button>
+        <button class="btn" onclick="sendCommand('d')" ontouchstart="sendCommand('d')">→</button>
+        <div></div>
+        <button class="btn" onclick="sendCommand('s')" ontouchstart="sendCommand('s')">↓</button>
+        <div></div>
     </div>
-    <p id="coords">X: 0, Y: 0</p>
-
-    <button onclick="sendRequest()">Trigger Function</button>
-    <p id="response"></p>
 
     <script>
-        const dot = document.getElementById("dot");
-        const container = document.querySelector(".container");
-        const radius = 150; // Circle radius
-        const centerX = 150, centerY = 150; // Center of the circle
-
-        let dragging = false;
-
-        dot.addEventListener("mousedown", startDrag);
-        dot.addEventListener("touchstart", startDrag, { passive: false });
-        document.addEventListener("mousemove", drag);
-        document.addEventListener("touchmove", drag, { passive: false });
-        document.addEventListener("mouseup", stopDrag);
-        document.addEventListener("touchend", stopDrag);
-
-        function startDrag(event) {
-            dragging = true;
-        }
-
-        function stopDrag() {
-            dragging = false;
-        }
-
-        function drag(event) {
-            if (!dragging) return;
-
-            event.preventDefault();
-            let clientX = event.touches ? event.touches[0].clientX : event.clientX;
-            let clientY = event.touches ? event.touches[0].clientY : event.clientY;
-
-            let rect = container.getBoundingClientRect();
-            let x = clientX - rect.left - centerX;
-            let y = clientY - rect.top - centerY;
-
-            // Keep the dot inside the circle
-            let distance = Math.sqrt(x * x + y * y);
-            if (distance > radius - 10) { // Adjust for dot size
-                x = (x / distance) * (radius - 10);
-                y = (y / distance) * (radius - 10);
-            }
-
-            dot.style.left = `${x + centerX - 10}px`;
-            dot.style.top = `${y + centerY - 10}px`;
-
-            document.getElementById("coords").innerText = `X: ${x.toFixed(1)}, Y: ${y.toFixed(1)}`;
-
-            sendCoordinates(x, y);
-        }
-
-        function sendCoordinates(x, y) {
-            fetch('/position', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ x: x, y: y })
-            })
-            .catch(err => console.error("Error:", err));
-        }
-
-        function sendRequest() {
-            fetch('/update', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: 'trigger-stop=c' })
-            .then(response => response.text())
-            .then(data => document.getElementById('response').innerText = data)
-            .catch(error => console.error('Error:', error));
+        function sendCommand(direction) {
+            fetch(`/update`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: `${direction}` })
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </body>

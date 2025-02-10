@@ -45,19 +45,19 @@
 <body>
     <div class="dpad">
         <div></div>
-        <button class="btn" ontouchstart="sendCommand('w')">↑</button>
+        <button class="btn" onclick="sendCommand('w')" ontouchstart="sendCommand('w')">↑</button>
         <div></div>
-        <button class="btn" ontouchstart="sendCommand('a')">←</button>
-        <button class="btn" ontouchstart="sendCommand('c')">■</button>
-        <button class="btn" ontouchstart="sendCommand('d')">→</button>
+        <button class="btn" onclick="sendCommand('a')" ontouchstart="sendCommand('a')">←</button>
+        <button class="btn" onclick="sendCommand('c')" ontouchstart="sendCommand('c')">■</button>
+        <button class="btn" onclick="sendCommand('d')" ontouchstart="sendCommand('d')">→</button>
         <div></div>
-        <button class="btn" ontouchstart="sendCommand('s')">↓</button>
+        <button class="btn" onclick="sendCommand('s')" ontouchstart="sendCommand('s')">↓</button>
         <div></div>
     </div>
 
     <script>
         function sendCommand(direction) {
-            fetch(`/update=${direction}`)
+            fetch(`/update`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: `${direction}` })
                 .catch(error => console.error('Error:', error));
         }
     </script>
