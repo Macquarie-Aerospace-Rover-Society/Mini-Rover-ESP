@@ -102,7 +102,7 @@ const char HTTP_MARS_WIFI_UI[] PROGMEM = R"rawliteral(
         }
 
         function sendRequest() {
-            fetch('/update', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: 'trigger' })
+            fetch('/update', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: 'trigger-stop=c' })
             .then(response => response.text())
             .then(data => document.getElementById('response').innerText = data)
             .catch(error => console.error('Error:', error));

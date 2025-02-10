@@ -33,6 +33,10 @@ void webpage_ui_handle(){
 }
 // */
 
+void api_set_position(){
+    
+}
+
 void MARS_WIFI_simple_handle(){
     if (server.hasArg("plain")) {
         String payload = server.arg("plain");
