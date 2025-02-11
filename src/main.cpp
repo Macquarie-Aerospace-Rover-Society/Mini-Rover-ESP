@@ -15,20 +15,20 @@
  */
 
 // Front-right
-#define MOTOR_C_PWM 41  // Replace this
-#define MOTOR_C_DIR 4   // Replace this
+#define MOTOR_A_PWM 45  // Purple
+#define MOTOR_A_DIR 0  // Grey
 
 // Back-right
-#define MOTOR_D_PWM 42  // Replace this
-#define MOTOR_D_DIR 5   // Replace this
+#define MOTOR_B_PWM 47  // Orange
+#define MOTOR_B_DIR 48  // Yellow
 
 // Front-left
-#define MOTOR_A_PWM 2  // Replace this
-#define MOTOR_A_DIR 6  // Replace this
+#define MOTOR_C_PWM 2  // White
+#define MOTOR_C_DIR 1  // Black
 
 // Back-left
-#define MOTOR_B_PWM 1  // Replace this
-#define MOTOR_B_DIR 7  // Replace this
+#define MOTOR_D_PWM 19  // Brown
+#define MOTOR_D_DIR 20  // Red
 
 // M1A > M1B === FORWARD
 #define MOTOR_ARM_SPIN_DIFF_A 9  // M1A
@@ -144,6 +144,7 @@ void setup() {
   motor_init(motor3, MOTOR_C_DIR, MOTOR_C_PWM);
   motor_init(motor4, MOTOR_D_DIR, MOTOR_D_PWM);
   motor_flip_orientation(motor1);
+  motor_flip_orientation(motor2);
 
   motor_init(motor_base, MOTOR_ARM_SPIN_DIFF_A, MOTOR_ARM_SPIN_DIFF_B);
 
