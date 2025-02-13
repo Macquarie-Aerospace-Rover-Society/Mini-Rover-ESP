@@ -22,8 +22,8 @@
 #define MOTOR_D_DIR 20  // Red
 
 // M1A > M1B === FORWARD
-#define MOTOR_ARM_SPIN_DIFF_A 9  // M1A
-#define MOTOR_ARM_SPIN_DIFF_B 10 // M1B
+#define MOTOR_ARM_SPIN_DIFF_A 3  // M1A
+#define MOTOR_ARM_SPIN_DIFF_B 46 // M1B
 
 // Control keys
 #define LEFT 'a'

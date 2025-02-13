@@ -1207,6 +1207,8 @@ static esp_err_t index_handler(httpd_req_t *req)
 
 void startCameraServer()
 {
+      motor_setup();
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.max_uri_handlers = 16;
 
@@ -1214,6 +1216,19 @@ void startCameraServer()
         .uri = "/",
         .method = HTTP_GET,
         .handler = index_handler,
+        .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+        ,
+        .is_websocket = true,
+        .handle_ws_control_frames = false,
+        .supported_subprotocol = NULL
+#endif
+    };
+
+    httpd_uri_t update_uri = {
+        .uri = "/update",
+        .method = HTTP_POST,
+        .handler = MARS_WIFI_simple_simple_handle,
         .user_ctx = NULL
 #ifdef CONFIG_HTTPD_WS_SUPPORT
         ,
@@ -1375,6 +1390,9 @@ void startCameraServer()
         httpd_register_uri_handler(camera_httpd, &greg_uri);
         httpd_register_uri_handler(camera_httpd, &pll_uri);
         httpd_register_uri_handler(camera_httpd, &win_uri);
+
+        // Added
+        httpd_register_uri_handler(camera_httpd, &update_uri);
     }
 
     config.server_port += 1;
