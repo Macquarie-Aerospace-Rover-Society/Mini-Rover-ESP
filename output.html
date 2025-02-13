@@ -49,6 +49,34 @@
                 align-items: stretch
             }
 
+            #stream-wrapper {
+                display: flex; /* Align stream and controls side-by-side */
+                align-items: center; /* Vertically center */
+                justify-content: center; /* Center within the container */
+                gap: 20px; /* Space between stream and controls */
+            }
+
+            #stream-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                max-width: 100%;
+            }
+
+            #stream {
+                transition: transform 0.3s ease;
+                display: block;
+                max-width: 100%;
+                height: auto;
+            }
+
+            #controls {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px; /* Space between buttons */
+            }
+
             figure {
                 padding: 0px;
                 margin: 0;
@@ -1157,23 +1185,62 @@ document.addEventListener('DOMContentLoaded', function (event) {
 })
 
         </script>
-        <div class="dpad">
-          <div></div>
-          <button class="btn" onclick="sendCommand('w')" ontouchstart="sendCommand('w')">↑</button>
-          <div></div>
-          <button class="btn" onclick="sendCommand('a')" ontouchstart="sendCommand('a')">←</button>
-          <button class="btn" onclick="sendCommand('c')" ontouchstart="sendCommand('c')">■</button>
-          <button class="btn" onclick="sendCommand('d')" ontouchstart="sendCommand('d')">→</button>
-          <div></div>
-          <button class="btn" onclick="sendCommand('s')" ontouchstart="sendCommand('s')">↓</button>
-          <div></div>
-      </div>
+        <div id="stream-wrapper">
+          <div id="stream-container" class="image-container hidden">
+            <a id="save-still" href="#" class="button save" download="capture.jpg">Save</a>
+            <div class="close" id="close-stream">×</div>
+            <img id="stream" src="" crossorigin>
+          </div>
+          <div class="dpad">
+            <div></div>
+            <button class="btn" onclick="sendCommand('w')" ontouchstart="sendCommand('w')">↑</button>
+            <div></div>
+            <button class="btn" onclick="sendCommand('a')" ontouchstart="sendCommand('a')">←</button>
+            <button class="btn" onclick="sendCommand('c')" ontouchstart="sendCommand('c')">■</button>
+            <button class="btn" onclick="sendCommand('d')" ontouchstart="sendCommand('d')">→</button>
+            <div></div>
+            <button class="btn" onclick="sendCommand('s')" ontouchstart="sendCommand('s')">↓</button>
+            <div></div>
+          </div>
 
-      <script>
-        function sendCommand(direction) {
-            fetch(`/update`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: `${direction}` })
-                .catch(error => console.error('Error:', error));
-        }
-      </script>
-    </body>
+          <div class="dpad">
+            <button class="btn" onclick="sendCommand('t')" ontouchstart="sendCommand('t')">1↑</button>
+            <button class="btn" onclick="sendCommand('y')" ontouchstart="sendCommand('y')">2↑</button>
+            <button class="btn" onclick="sendCommand('u')" ontouchstart="sendCommand('u')">3↑</button>
+            <div></div>
+            <button class="btn" onclick="sendCommand('c')" ontouchstart="sendCommand('c')">■</button>
+            <div></div>
+            <button class="btn" onclick="sendCommand('g')" ontouchstart="sendCommand('g')">1↓</button>
+            <button class="btn" onclick="sendCommand('h')" ontouchstart="sendCommand('h')">2↓</button>
+            <button class="btn" onclick="sendCommand('j')" ontouchstart="sendCommand('j')">3↓</button>
+          </div>
+        </div>
+
+        <script>
+          function sendCommand(direction) {
+              fetch(`/update`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: `${direction}` })
+                  .catch(error => console.error('Error:', error));
+          }
+
+          document.addEventListener('DOMContentLoaded', function () {
+              const videoElement = document.getElementById('stream'); // The image displaying the feed
+              let rotationAngle = 0; // Track the current rotation
+
+              function rotateFeed() {
+                  rotationAngle = (rotationAngle + 90) % 360; // Rotate in 90-degree increments
+                  videoElement.style.transform = `rotate(${rotationAngle}deg)`;
+              }
+
+              // Create a button to trigger rotation
+              const rotateButton = document.createElement('button');
+              rotateButton.innerText = 'Rotate Feed';
+              rotateButton.style.margin = '10px';
+              rotateButton.onclick = rotateFeed;
+
+              // Append the button to the page
+              document.body.appendChild(rotateButton);
+          });
+
+        </script>
+  </body>
 </html>

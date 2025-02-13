@@ -4,8 +4,8 @@
 #include <ESP32Servo.h> // Install Library
 
 // Servo signals
-#define SERVO_A_SIGNAL 12
-#define SERVO_B_SIGNAL 13
+#define SERVO_A_SIGNAL 3
+#define SERVO_B_SIGNAL 42
 #define SERVO_C_SIGNAL 14
 
 #define ANGLE_DELTA 5
@@ -23,9 +23,9 @@ void init_arm() {
     ServeArm[0].attach(SERVO_A_SIGNAL);
     ServeArm[1].attach(SERVO_B_SIGNAL);
     ServeArm[2].attach(SERVO_C_SIGNAL);
-    ServeArm[0].write(0);
-    ServeArm[1].write(0);
-    ServeArm[2].write(0);
+    // ServeArm[0].write(0); // Smack a user when ever power on
+    // ServeArm[1].write(0);
+    // ServeArm[2].write(0);
 }
 
 void arm_shift(Servo &p_servo, bool dir) {
@@ -58,4 +58,3 @@ void arm_drive(char c){
         arm_shift(ServeArm[2], false);
     }
 }
-
