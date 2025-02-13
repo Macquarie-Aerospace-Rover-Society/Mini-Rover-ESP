@@ -12,6 +12,14 @@
                 font-size: 16px
             }
 
+            .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            }
+
             h2 {
                 font-size: 18px
             }
@@ -709,6 +717,7 @@
                 </figure>
             </div>
         </section>
+        
         <script>
 document.addEventListener('DOMContentLoaded', function (event) {
   var baseHost = document.location.origin
@@ -1148,5 +1157,23 @@ document.addEventListener('DOMContentLoaded', function (event) {
 })
 
         </script>
+        <div class="dpad">
+          <div></div>
+          <button class="btn" onclick="sendCommand('w')" ontouchstart="sendCommand('w')">↑</button>
+          <div></div>
+          <button class="btn" onclick="sendCommand('a')" ontouchstart="sendCommand('a')">←</button>
+          <button class="btn" onclick="sendCommand('c')" ontouchstart="sendCommand('c')">■</button>
+          <button class="btn" onclick="sendCommand('d')" ontouchstart="sendCommand('d')">→</button>
+          <div></div>
+          <button class="btn" onclick="sendCommand('s')" ontouchstart="sendCommand('s')">↓</button>
+          <div></div>
+      </div>
+
+      <script>
+        function sendCommand(direction) {
+            fetch(`/update`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: `${direction}` })
+                .catch(error => console.error('Error:', error));
+        }
+      </script>
     </body>
 </html>

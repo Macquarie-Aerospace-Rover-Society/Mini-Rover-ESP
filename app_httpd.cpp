@@ -20,6 +20,8 @@
 #include "sdkconfig.h"
 #include "camera_index.h"
 
+#include "motors.h"
+
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
 #define TAG ""
@@ -1200,6 +1202,8 @@ static esp_err_t index_handler(httpd_req_t *req)
         return httpd_resp_send_500(req);
     }
 }
+
+
 
 void startCameraServer()
 {
