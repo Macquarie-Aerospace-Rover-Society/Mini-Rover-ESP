@@ -153,7 +153,7 @@ void motor_init(MOTOR_DIFF &p_motor, uint8_t direction_pin, uint8_t pwm_pin) {
   setSpeed(p_motor, 0);
 }
 
-/* Values for speeds
+/** Values for speeds
  * 0  , 0  => stop ==
  * 0  , 1  => max  <<
  * 1  , 0  => max  >>
