@@ -2,7 +2,7 @@
 #include "esp_http_server.h" // standard esp library
 
 #include "config.h"
-// #include "arm.hpp"
+#include "arm.hpp"
 
 /* Motor Driver (MAKER MDD3A) Pin Allocations - datasheet (https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/204/105090004_Web.pdf) */
 #define MOTOR_LEFT_PWM_1 47  // Yellow - M1A (right reverse)
@@ -10,28 +10,10 @@
 #define MOTOR_RIGHT_PWM_3 45 // Brown - M2A (left forward)
 #define MOTOR_RIGHT_PWM_4 2  // White - M2B (left reverse)
 
-/* TODO: Remove :)
-// Front-right
-#define MOTOR_A_PWM 45  // Purple
-#define MOTOR_A_DIR 0  // Grey
-
-// Back-right
-#define MOTOR_B_PWM 47  // Orange
-#define MOTOR_B_DIR 48  // Yellow
-
-// Front-left
-#define MOTOR_C_PWM 2  // White
-#define MOTOR_C_DIR 1  // Black
-
-// Back-left
-#define MOTOR_D_PWM 19  // Brown
-#define MOTOR_D_DIR 20  // Red
-*/
-
 /* Mini Robotic Arm Pin Allocations */
-// // M1A > M1B === FORWARD
-// #define MOTOR_ARM_SPIN_DIFF_A 3  // M1A
-// #define MOTOR_ARM_SPIN_DIFF_B 46 // M1B
+// M1A > M1B === FORWARD
+#define MOTOR_ARM_SPIN_DIFF_A 3  // M1A
+#define MOTOR_ARM_SPIN_DIFF_B 46 // M1B
 
 /* 5 Speed Levels - 255/5 => 51 */
 #define MTRINC 51
@@ -274,7 +256,9 @@ void drive(char c){
   } else if (BACKWARD == c) {
     Serial.println("BACKWARD");
     setSpeed(motor_LL, motor_LL.velocity - MTRINC);
+    #ifdef L_REAR
     setSpeed(motor_LR, motor_LR.velocity - MTRINC);
+    #endif
     setSpeed(motor_RL, motor_RL.velocity - MTRINC);
     #ifdef R_REAR
     setSpeed(motor_RR, motor_RR.velocity + MTRINC);
@@ -290,7 +274,8 @@ void drive(char c){
     setSpeed(motor_RR, 0);
     #endif
   } else if (INFO == c) {
-    Serial.printf("Motor values: M1: %d, M2: %d, M3: %d, M4: %d\n", motor_LL.velocity, motor_RL.velocity, motor_LR.velocity, motor_RR.velocity);
+    // TODO insert DEBUG call
+    // Serial.printf("Motor values: M1: %d, M2: %d, M3: %d, M4: %d\n", motor_LL.velocity, motor_RL.velocity, motor_LR.velocity, motor_RR.velocity);
   } else {
     Serial.printf("Controls: %c%c%c%c\n", FORWARD, LEFT, BACKWARD, RIGHT);
   }
