@@ -1,10 +1,16 @@
 #include <Arduino.h>
+#include "esp_http_server.h" // standard esp library
 
-#include "esp_http_server.h"
+#include "config.h"
+// #include "arm.hpp"
 
+/* Motor Driver (MAKER MDD3A) Pin Allocations - datasheet (https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/204/105090004_Web.pdf) */
+#define MOTOR_LEFT_PWM_1 47  // Yellow - M1A (right reverse)
+#define MOTOR_LEFT_PWM_2 48  // Orange - M1B (right forward)
+#define MOTOR_RIGHT_PWM_3 45 // Brown - M2A (left forward)
+#define MOTOR_RIGHT_PWM_4 2  // White - M2B (left reverse)
 
-#include "arm.hpp"
-
+/* TODO: Remove :)
 // Front-right
 #define MOTOR_A_PWM 45  // Purple
 #define MOTOR_A_DIR 0  // Grey
@@ -20,23 +26,14 @@
 // Back-left
 #define MOTOR_D_PWM 19  // Brown
 #define MOTOR_D_DIR 20  // Red
+*/
 
-// M1A > M1B === FORWARD
-#define MOTOR_ARM_SPIN_DIFF_A 3  // M1A
-#define MOTOR_ARM_SPIN_DIFF_B 46 // M1B
+/* Mini Robotic Arm Pin Allocations */
+// // M1A > M1B === FORWARD
+// #define MOTOR_ARM_SPIN_DIFF_A 3  // M1A
+// #define MOTOR_ARM_SPIN_DIFF_B 46 // M1B
 
-// Control keys
-#define LEFT 'a'
-#define RIGHT 'd'
-#define FORWARD 'w'
-#define BACKWARD 's'
-#define INFO 'i'
-#define HALT 'c'
-
-#define CLOCKWISE   'e'
-#define A_CLOCKWISE 'q'
-
-// 5 Speed Levels - 255/5 => 51
+/* 5 Speed Levels - 255/5 => 51 */
 #define MTRINC 51
 #define MTRDEC -51
 
@@ -46,11 +43,11 @@
 // Low or HIGH
 #define DEFAULT_ORIENTATION HIGH
 
-#define MOTOR_CONTROL(x, y) \
-  setSpeed(motor1, motor1.velocity + x); \
-  setSpeed(motor2, motor2.velocity + y); \
-  setSpeed(motor3, motor3.velocity + x); \
-  setSpeed(motor4, motor4.velocity + y)
+// #define MOTOR_CONTROL(x, y) \
+//   setSpeed(motor_LL, motor_LL.velocity + x); \
+//   setSpeed(motor_RL, motor_RL.velocity + y); \
+//   // setSpeed(motor_LR, motor_LR.velocity + x); \
+//   // setSpeed(motor_RR, motor_RR.velocity + y)
 
 
 typedef struct mah_motor {
@@ -68,18 +65,22 @@ typedef struct nah_motor {
 //##############################
 /* Function definitions */
 
-void motor_setup();
+void motor_setup(); // TODO: add comment
 
-void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin);
-int setSpeed(MOTOR &p_motor, int velocity);
-int motor_flip_orientation(MOTOR &p_motor);
+// Functions for PWM Motors
+void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin); // TODO: add comment
+int setSpeed(MOTOR &p_motor, int velocity); // TODO: add comment
+int motor_flip_orientation(MOTOR &p_motor); // TODO: add comment
 
-int setSpeed(MOTOR_DIFF &p_motor, int velocity);
-void motor_init(MOTOR_DIFF &p_motor, uint8_t direction_pin, uint8_t pwm_pin);
+// Functions for DIFF motors.
+int setSpeed(MOTOR_DIFF &p_motor, int velocity); // TODO: add comment
+void motor_init(MOTOR_DIFF &p_motor, uint8_t direction_pin, uint8_t pwm_pin); // TODO: add comment
 
-void drive(char c);
-void drive_arm(char c);
+// Functions to drive motors - "Takes in command from world to move"
+void drive(char c); // TODO: add comment
+void drive_arm(char c); // TODO: add comment
 
+/* ??? */
 esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
     // Buffer to store received data
     char payload[100] = {0};
@@ -114,23 +115,34 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
     return ESP_OK;
 }
 
+// Types are declared in config
+L_LEAD motor_LL;
+R_LEAD motor_RL;
+#ifdef L_REAR
+L_REAR motor_LR;
+#endif
+#ifdef R_REAR
+R_REAR motor_RR;
+#endif
 
-MOTOR motor1;
-MOTOR motor2;
-MOTOR motor3;
-MOTOR motor4;
 
 /* Arm stuff */
 MOTOR_DIFF motor_base;
 
 void motor_setup(){
-  motor_init(motor1, MOTOR_A_DIR, MOTOR_A_PWM);
-  motor_init(motor2, MOTOR_B_DIR, MOTOR_B_PWM);
-  motor_init(motor3, MOTOR_C_DIR, MOTOR_C_PWM);
-  motor_init(motor4, MOTOR_D_DIR, MOTOR_D_PWM);
-  motor_flip_orientation(motor1);
-  motor_flip_orientation(motor2);
+  // TODO replace with arrays
+  motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM);
+  motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM);
+  #ifdef L_REAR
+  motor_init(motor_LR, MOTOR_LEFT_REAR_DIR, MOTOR_LEFT_REAR_PWM);
+  #endif
+  #ifdef R_REAR
+  motor_init(motor_RR, MOTOR_RIGHT_REAR_DIR, MOTOR_RIGHT_REAR_PWM);
+  #endif
+  // motor_flip_orientation(motor_LL);
+  // motor_flip_orientation(motor_RL);
 
+  // TODO move this to arm section
   motor_init(motor_base, MOTOR_ARM_SPIN_DIFF_A, MOTOR_ARM_SPIN_DIFF_B);
 }
 
@@ -228,38 +240,57 @@ int motor_flip_orientation(MOTOR &p_motor){
 
 
 void drive(char c){
+  // TODO replace with loops and arrays
   if (LEFT == c) {
     Serial.println("LEFT");
-    setSpeed(motor1, motor1.velocity + MTRINC);
-    setSpeed(motor2, motor2.velocity + MTRINC);
-    setSpeed(motor3, motor3.velocity - MTRINC);
-    setSpeed(motor4, motor4.velocity - MTRINC);
+    setSpeed(motor_LL, motor_LL.velocity - MTRINC);
+    #ifdef L_REAR
+    setSpeed(motor_LR, motor_LR.velocity - MTRINC);
+    #endif
+    setSpeed(motor_RL, motor_RL.velocity + MTRINC);
+    #ifdef R_REAR
+    setSpeed(motor_RR, motor_RR.velocity + MTRINC);
+    #endif
   } else if (RIGHT == c) {
     Serial.println("RIGHT");
-    setSpeed(motor1, motor1.velocity - MTRINC);
-    setSpeed(motor2, motor2.velocity - MTRINC);
-    setSpeed(motor3, motor3.velocity + MTRINC);
-    setSpeed(motor4, motor4.velocity + MTRINC);
+    setSpeed(motor_LL, motor_LL.velocity + MTRINC);
+    #ifdef L_REAR
+    setSpeed(motor_LR, motor_LR.velocity + MTRINC);
+    #endif
+    setSpeed(motor_RL, motor_RL.velocity - MTRINC);
+    #ifdef R_REAR
+    setSpeed(motor_RR, motor_RR.velocity - MTRINC);
+    #endif
   } else if (FORWARD == c) {
     Serial.println("FORWARD");
-    setSpeed(motor1, motor1.velocity + MTRINC);
-    setSpeed(motor2, motor2.velocity + MTRINC);
-    setSpeed(motor3, motor3.velocity + MTRINC);
-    setSpeed(motor4, motor4.velocity + MTRINC);
+    setSpeed(motor_LL, motor_LL.velocity + MTRINC);
+    #ifdef L_REAR
+    setSpeed(motor_LR, motor_LR.velocity + MTRINC);
+    #endif
+    setSpeed(motor_RL, motor_RL.velocity + MTRINC);
+    #ifdef R_REAR
+    setSpeed(motor_RR, motor_RR.velocity + MTRINC);
+    #endif
   } else if (BACKWARD == c) {
     Serial.println("BACKWARD");
-    setSpeed(motor1, motor1.velocity - MTRINC);
-    setSpeed(motor2, motor2.velocity - MTRINC);
-    setSpeed(motor3, motor3.velocity - MTRINC);
-    setSpeed(motor4, motor4.velocity - MTRINC);
+    setSpeed(motor_LL, motor_LL.velocity - MTRINC);
+    setSpeed(motor_LR, motor_LR.velocity - MTRINC);
+    setSpeed(motor_RL, motor_RL.velocity - MTRINC);
+    #ifdef R_REAR
+    setSpeed(motor_RR, motor_RR.velocity + MTRINC);
+    #endif
   } else if (HALT == c) {
     Serial.println("HALTING");
-    setSpeed(motor1, 0);
-    setSpeed(motor2, 0);
-    setSpeed(motor3, 0);
-    setSpeed(motor4, 0);
+    setSpeed(motor_LL, 0);
+    #ifdef L_REAR
+    setSpeed(motor_LR, 0);
+    #endif
+    setSpeed(motor_RL, 0);
+    #ifdef R_REAR
+    setSpeed(motor_RR, 0);
+    #endif
   } else if (INFO == c) {
-    Serial.printf("Motor values: M1: %d, M2: %d, M3: %d, M4: %d\n", motor1.velocity, motor2.velocity, motor3.velocity, motor4.velocity);
+    Serial.printf("Motor values: M1: %d, M2: %d, M3: %d, M4: %d\n", motor_LL.velocity, motor_RL.velocity, motor_LR.velocity, motor_RR.velocity);
   } else {
     Serial.printf("Controls: %c%c%c%c\n", FORWARD, LEFT, BACKWARD, RIGHT);
   }
