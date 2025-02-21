@@ -8,8 +8,8 @@
 #define MARS_CTRL_CONFIG
 
 
-#define MOTOR_LEFT_LEAD_PWM 45  // Brown  - M2A (left forward)
-#define MOTOR_LEFT_LEAD_DIR 2   // White  - M2B (left reverse)
+#define MOTOR_LEFT_LEAD_PWM 2   // White  - M2B (left reverse)
+#define MOTOR_LEFT_LEAD_DIR 45  // Brown  - M2A (left forward)
 // #define MOTOR_LEFT_REAR_PWM
 // #define MOTOR_LEFT_REAR_DIR
 
