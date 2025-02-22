@@ -35,7 +35,7 @@ typedef struct mah_motor {
 typedef struct nah_motor {
   int velocity;
   uint8_t dir_A, pwm_B;
-  uint8_t orientation;
+  uint8_t orientation; // Unused, just flip the pins
 } MOTOR_DIFF;
 
 //##############################
@@ -94,16 +94,62 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
 }
 
 // Types are declared in config
-L_LEAD motor_LL;
-R_LEAD motor_RL;
-#ifdef L_REAR
-L_REAR motor_LR;
-#endif
-#ifdef R_REAR
-R_REAR motor_RR;
+// L_LEAD motor_LL;
+// R_LEAD motor_RL;
+// #ifdef L_REAR
+// L_REAR motor_LR;
+// #endif
+// #ifdef R_REAR
+// R_REAR motor_RR;
+// #endif
+
+#ifndef L_REAR
+  L_LEAD motor_LL;
+  #define L_INIT() \
+    motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM);
+  #define L_TANK(x) \
+    setSpeed(motor_LL, motor_LL.velocity + x);
+  #define L_STOP() \
+    setSpeed(motor_LL, 0);
+#else
+  R_REAR motor_LL;
+  R_REAR motor_LR;
+  #define L_INIT() \
+    motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM); \
+    motor_init(motor_LR, MOTOR_LEFT_REAR_DIR, MOTOR_LEFT_REAR_PWM);
+  #define L_TANK(x) \
+    setSpeed(motor_LL, motor_LL.velocity + x); \
+    setSpeed(motor_LR, motor_LR.velocity + x);
+  #define L_STOP() \
+    setSpeed(motor_LL, 0); \
+    setSpeed(motor_LR, 0);
 #endif
 
+#ifndef R_REAR
+  R_LEAD motor_RL;
+  #define R_INIT() \
+    motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM);
+  #define R_TANK(x) \
+    setSpeed(motor_RL, motor_RL.velocity + x);
+  #define R_STOP() \
+    setSpeed(motor_RL, 0);
+#else
+  R_LEAD motor_RL;
+  L_REAR motor_RR;
+  #define R_INIT() \
+    motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM); \
+    motor_init(motor_RR, MOTOR_RIGHT_REAR_DIR, MOTOR_RIGHT_REAR_PWM);
+  #define R_TANK(x) \
+    setSpeed(motor_RL, motor_RL.velocity + x); \
+    setSpeed(motor_RR, motor_RR.velocity + x);
+  #define R_STOP() \
+    setSpeed(motor_RL, 0); \
+    setSpeed(motor_RR, 0);
+#endif
 
+#define ALL_STOP() \
+  L_STOP() \
+  R_STOP()
 
 
 /* Arm stuff */
@@ -111,14 +157,16 @@ MOTOR_DIFF motor_base;
 
 void motor_setup(){
   // TODO replace with arrays
-  motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM);
-  motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM);
-  #ifdef L_REAR
-  motor_init(motor_LR, MOTOR_LEFT_REAR_DIR, MOTOR_LEFT_REAR_PWM);
-  #endif
-  #ifdef R_REAR
-  motor_init(motor_RR, MOTOR_RIGHT_REAR_DIR, MOTOR_RIGHT_REAR_PWM);
-  #endif
+  // motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM);
+  // motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM);
+  // #ifdef L_REAR
+  // motor_init(motor_LR, MOTOR_LEFT_REAR_DIR, MOTOR_LEFT_REAR_PWM);
+  // #endif
+  // #ifdef R_REAR
+  // motor_init(motor_RR, MOTOR_RIGHT_REAR_DIR, MOTOR_RIGHT_REAR_PWM);
+  // #endif
+  L_INIT();
+  R_INIT();
   // motor_flip_orientation(motor_LL);
   // motor_flip_orientation(motor_RL);
 
@@ -220,38 +268,6 @@ int motor_flip_orientation(MOTOR &p_motor){
   p_motor.orientation = !p_motor.orientation;
   return 0;
 }
-
-#ifndef L_REAR
-#define L_TANK(x) \
-  setSpeed(motor_LL, motor_LL.velocity + x);
-#define L_STOP() \
-  setSpeed(motor_LL, 0);
-#else
-#define L_TANK(x) \
-  setSpeed(motor_LL, motor_LL.velocity + x); \
-  setSpeed(motor_LR, motor_LR.velocity + x);
-#define L_STOP() \
-  setSpeed(motor_LL, 0); \
-  setSpeed(motor_LR, 0);
-#endif
-
-#ifndef R_REAR
-#define R_TANK(x) \
-  setSpeed(motor_RL, motor_RL.velocity + x);
-#define R_STOP() \
-  setSpeed(motor_RL, 0);
-#else
-#define L_TANK(x) \
-  setSpeed(motor_RL, motor_RL.velocity + x); \
-  setSpeed(motor_RR, motor_RR.velocity + x);
-#define R_STOP() \
-  setSpeed(motor_RL, 0); \
-  setSpeed(motor_RR, 0);
-#endif
-
-#define ALL_STOP() \
-  L_STOP() \
-  R_STOP()
 
 
 /**
