@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "esp_camera.h"
 #include <WiFi.h>
 
@@ -24,8 +26,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "MARS_MINI";
-const char *password = "marsmini";
+const char *ssid     = MARS_WIFI_SSID;
+const char *password = MARS_WIFI_PASS;
 
 void startCameraServer();
 

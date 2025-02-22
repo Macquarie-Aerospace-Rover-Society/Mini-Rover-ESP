@@ -4,12 +4,6 @@
 #include "config.h"
 #include "arm.hpp"
 
-/* Motor Driver (MAKER MDD3A) Pin Allocations - datasheet (https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/204/105090004_Web.pdf) */
-#define MOTOR_LEFT_PWM_1 47  // Yellow - M1A (right reverse)
-#define MOTOR_LEFT_PWM_2 48  // Orange - M1B (right forward)
-#define MOTOR_RIGHT_PWM_3 45 // Brown - M2A (left forward)
-#define MOTOR_RIGHT_PWM_4 2  // White - M2B (left reverse)
-
 /* Mini Robotic Arm Pin Allocations */
 // M1A > M1B === FORWARD
 #define MOTOR_ARM_SPIN_DIFF_A 3  // M1A
@@ -28,8 +22,8 @@
 // #define MOTOR_CONTROL(x, y) \
 //   setSpeed(motor_LL, motor_LL.velocity + x); \
 //   setSpeed(motor_RL, motor_RL.velocity + y); \
-//   // setSpeed(motor_LR, motor_LR.velocity + x); \
-//   // setSpeed(motor_RR, motor_RR.velocity + y)
+//   setSpeed(motor_LR, motor_LR.velocity + x); \
+//   setSpeed(motor_RR, motor_RR.velocity + y)
 
 
 typedef struct mah_motor {
@@ -50,11 +44,13 @@ typedef struct nah_motor {
 void motor_setup(); // TODO: add comment
 
 // Functions for PWM Motors
+
 void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin); // TODO: add comment
 int setSpeed(MOTOR &p_motor, int velocity); // TODO: add comment
 int motor_flip_orientation(MOTOR &p_motor); // TODO: add comment
 
 // Functions for DIFF motors.
+
 int setSpeed(MOTOR_DIFF &p_motor, int velocity); // TODO: add comment
 void motor_init(MOTOR_DIFF &p_motor, uint8_t direction_pin, uint8_t pwm_pin); // TODO: add comment
 
@@ -106,6 +102,8 @@ L_REAR motor_LR;
 #ifdef R_REAR
 R_REAR motor_RR;
 #endif
+
+
 
 
 /* Arm stuff */
@@ -215,64 +213,71 @@ int setSpeed(MOTOR &p_motor, int velocity) {
   return 0;
 }
 
+/**
+ * Invert the directtion of drive for positive / negative velocity.
+ */
 int motor_flip_orientation(MOTOR &p_motor){
   p_motor.orientation = !p_motor.orientation;
   return 0;
 }
 
+#ifndef L_REAR
+#define L_TANK(x) \
+  setSpeed(motor_LL, motor_LL.velocity + x);
+#define L_STOP() \
+  setSpeed(motor_LL, 0);
+#else
+#define L_TANK(x) \
+  setSpeed(motor_LL, motor_LL.velocity + x); \
+  setSpeed(motor_LR, motor_LR.velocity + x);
+#define L_STOP() \
+  setSpeed(motor_LL, 0); \
+  setSpeed(motor_LR, 0);
+#endif
 
+#ifndef R_REAR
+#define R_TANK(x) \
+  setSpeed(motor_RL, motor_RL.velocity + x);
+#define R_STOP() \
+  setSpeed(motor_RL, 0);
+#else
+#define L_TANK(x) \
+  setSpeed(motor_RL, motor_RL.velocity + x); \
+  setSpeed(motor_RR, motor_RR.velocity + x);
+#define R_STOP() \
+  setSpeed(motor_RL, 0); \
+  setSpeed(motor_RR, 0);
+#endif
+
+#define ALL_STOP() \
+  L_STOP() \
+  R_STOP()
+
+
+/**
+ * 
+ */
 void drive(char c){
   // TODO replace with loops and arrays
   if (LEFT == c) {
     Serial.println("LEFT");
-    setSpeed(motor_LL, motor_LL.velocity - MTRINC);
-    #ifdef L_REAR
-    setSpeed(motor_LR, motor_LR.velocity - MTRINC);
-    #endif
-    setSpeed(motor_RL, motor_RL.velocity + MTRINC);
-    #ifdef R_REAR
-    setSpeed(motor_RR, motor_RR.velocity + MTRINC);
-    #endif
+    L_TANK( - MTRINC );
+    R_TANK( + MTRINC );
   } else if (RIGHT == c) {
     Serial.println("RIGHT");
-    setSpeed(motor_LL, motor_LL.velocity + MTRINC);
-    #ifdef L_REAR
-    setSpeed(motor_LR, motor_LR.velocity + MTRINC);
-    #endif
-    setSpeed(motor_RL, motor_RL.velocity - MTRINC);
-    #ifdef R_REAR
-    setSpeed(motor_RR, motor_RR.velocity - MTRINC);
-    #endif
+    L_TANK( + MTRINC );
+    R_TANK( - MTRINC );
   } else if (FORWARD == c) {
     Serial.println("FORWARD");
-    setSpeed(motor_LL, motor_LL.velocity + MTRINC);
-    #ifdef L_REAR
-    setSpeed(motor_LR, motor_LR.velocity + MTRINC);
-    #endif
-    setSpeed(motor_RL, motor_RL.velocity + MTRINC);
-    #ifdef R_REAR
-    setSpeed(motor_RR, motor_RR.velocity + MTRINC);
-    #endif
+    L_TANK( + MTRINC );
+    R_TANK( + MTRINC );
   } else if (BACKWARD == c) {
     Serial.println("BACKWARD");
-    setSpeed(motor_LL, motor_LL.velocity - MTRINC);
-    #ifdef L_REAR
-    setSpeed(motor_LR, motor_LR.velocity - MTRINC);
-    #endif
-    setSpeed(motor_RL, motor_RL.velocity - MTRINC);
-    #ifdef R_REAR
-    setSpeed(motor_RR, motor_RR.velocity + MTRINC);
-    #endif
+    L_TANK( - MTRINC );
+    R_TANK( - MTRINC );
   } else if (HALT == c) {
     Serial.println("HALTING");
-    setSpeed(motor_LL, 0);
-    #ifdef L_REAR
-    setSpeed(motor_LR, 0);
-    #endif
-    setSpeed(motor_RL, 0);
-    #ifdef R_REAR
-    setSpeed(motor_RR, 0);
-    #endif
+    ALL_STOP();
   } else if (INFO == c) {
     // TODO insert DEBUG call
     // Serial.printf("Motor values: M1: %d, M2: %d, M3: %d, M4: %d\n", motor_LL.velocity, motor_RL.velocity, motor_LR.velocity, motor_RR.velocity);

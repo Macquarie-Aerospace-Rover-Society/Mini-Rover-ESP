@@ -7,6 +7,8 @@
 #ifndef MARS_CTRL_CONFIG
 #define MARS_CTRL_CONFIG
 
+#define MARS_WIFI_SSID_DEFAULT "MARS_MINI"
+#define MARS_WIFI_PASS_DEFAULT "marsmini"
 
 #define MOTOR_LEFT_LEAD_PWM 2   // White  - M2B (left reverse)
 #define MOTOR_LEFT_LEAD_DIR 45  // Brown  - M2A (left forward)
@@ -98,6 +100,16 @@
 
 /* !!!!!!!!!! Only Edit above this line !!!!!!!!!! */
 
+#if __has_include("config.env.h")
+    #include "config.env.h"
+    #if !defined(MARS_WIFI_SSID) || !defined(MARS_WIFI_PASS)
+        #error "*** Please define MARS_WIFI_SSID and MARS_WIFI_PASS in config.env.h ***"
+    #endif
+#else
+    #pragma message("\n*** Warning: config.env.h' not found, using defaults. ***\n")
+    #define MARS_WIFI_SSID MARS_WIFI_SSID_DEFAULT
+    #define MARS_WIFI_PASS MARS_WIFI_PASS_DEFAULT
+#endif
 
 // Control keys
 #ifndef LEFT
