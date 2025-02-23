@@ -7,6 +7,7 @@
 #ifndef MARS_CTRL_CONFIG
 #define MARS_CTRL_CONFIG
 
+// Default WiFi AP details to connect to, use config.env.h for private AP
 #define MARS_WIFI_SSID_DEFAULT "MARS_MINI"
 #define MARS_WIFI_PASS_DEFAULT "marsmini"
 
