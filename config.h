@@ -7,11 +7,12 @@
 #ifndef MARS_CTRL_CONFIG
 #define MARS_CTRL_CONFIG
 
+// Default WiFi AP details to connect to, use config.env.h for private AP
 #define MARS_WIFI_SSID_DEFAULT "MARS_BaseStation"
 #define MARS_WIFI_PASS_DEFAULT "marsbasestation"
 
-#define MOTOR_LEFT_LEAD_PWM 2   // White  - M2B (left reverse)
-#define MOTOR_LEFT_LEAD_DIR 45  // Brown  - M2A (left forward)
+#define MOTOR_LEFT_LEAD_PWM 45  // Brown  - M2A (left forward)
+#define MOTOR_LEFT_LEAD_DIR 2   // White  - M2B (left reverse)
 // #define MOTOR_LEFT_REAR_PWM
 // #define MOTOR_LEFT_REAR_DIR
 

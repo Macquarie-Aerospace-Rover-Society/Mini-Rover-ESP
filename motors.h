@@ -45,18 +45,19 @@ void motor_setup(); // TODO: add comment
 
 // Functions for PWM Motors
 
-void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin); // TODO: add comment
-int setSpeed(MOTOR &p_motor, int velocity); // TODO: add comment
-int motor_flip_orientation(MOTOR &p_motor); // TODO: add comment
+void motor_init(MOTOR &p_motor, uint8_t direction_pin, uint8_t pwm_pin);
+int setSpeed(MOTOR &p_motor, int velocity);
+int motor_flip_orientation(MOTOR &p_motor);
 
 // Functions for DIFF motors.
 
-int setSpeed(MOTOR_DIFF &p_motor, int velocity); // TODO: add comment
-void motor_init(MOTOR_DIFF &p_motor, uint8_t direction_pin, uint8_t pwm_pin); // TODO: add comment
+int setSpeed(MOTOR_DIFF &p_motor, int velocity);
+void motor_init(MOTOR_DIFF &p_motor, uint8_t direction_pin, uint8_t pwm_pin);
 
 // Functions to drive motors - "Takes in command from world to move"
-void drive(char c); // TODO: add comment
-void drive_arm(char c); // TODO: add comment
+
+void drive(char c);
+void drive_arm(char c);
 
 /* ??? */
 esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
@@ -108,7 +109,7 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
   #define L_INIT() \
     motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM);
   #define L_TANK(x) \
-    setSpeed(motor_LL, motor_LL.velocity + x);
+    setSpeed(motor_LL, motor_LL.velocity  x);
   #define L_STOP() \
     setSpeed(motor_LL, 0);
 #else
@@ -118,8 +119,8 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
     motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM); \
     motor_init(motor_LR, MOTOR_LEFT_REAR_DIR, MOTOR_LEFT_REAR_PWM);
   #define L_TANK(x) \
-    setSpeed(motor_LL, motor_LL.velocity + x); \
-    setSpeed(motor_LR, motor_LR.velocity + x);
+    setSpeed(motor_LL, motor_LL.velocity  x); \
+    setSpeed(motor_LR, motor_LR.velocity  x);
   #define L_STOP() \
     setSpeed(motor_LL, 0); \
     setSpeed(motor_LR, 0);
@@ -130,7 +131,7 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
   #define R_INIT() \
     motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM);
   #define R_TANK(x) \
-    setSpeed(motor_RL, motor_RL.velocity + x);
+    setSpeed(motor_RL, motor_RL.velocity  x);
   #define R_STOP() \
     setSpeed(motor_RL, 0);
 #else
@@ -140,8 +141,8 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
     motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM); \
     motor_init(motor_RR, MOTOR_RIGHT_REAR_DIR, MOTOR_RIGHT_REAR_PWM);
   #define R_TANK(x) \
-    setSpeed(motor_RL, motor_RL.velocity + x); \
-    setSpeed(motor_RR, motor_RR.velocity + x);
+    setSpeed(motor_RL, motor_RL.velocity  x); \
+    setSpeed(motor_RR, motor_RR.velocity  x);
   #define R_STOP() \
     setSpeed(motor_RL, 0); \
     setSpeed(motor_RR, 0);
@@ -156,15 +157,6 @@ esp_err_t MARS_WIFI_simple_simple_handle(httpd_req_t *req) {
 MOTOR_DIFF motor_base;
 
 void motor_setup(){
-  // TODO replace with arrays
-  // motor_init(motor_LL, MOTOR_LEFT_LEAD_DIR, MOTOR_LEFT_LEAD_PWM);
-  // motor_init(motor_RL, MOTOR_RIGHT_LEAD_DIR, MOTOR_RIGHT_LEAD_PWM);
-  // #ifdef L_REAR
-  // motor_init(motor_LR, MOTOR_LEFT_REAR_DIR, MOTOR_LEFT_REAR_PWM);
-  // #endif
-  // #ifdef R_REAR
-  // motor_init(motor_RR, MOTOR_RIGHT_REAR_DIR, MOTOR_RIGHT_REAR_PWM);
-  // #endif
   L_INIT();
   R_INIT();
   // motor_flip_orientation(motor_LL);
