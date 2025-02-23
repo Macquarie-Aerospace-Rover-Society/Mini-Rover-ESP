@@ -7,8 +7,8 @@
 #ifndef MARS_CTRL_CONFIG
 #define MARS_CTRL_CONFIG
 
-#define MARS_WIFI_SSID_DEFAULT "MARS_MINI"
-#define MARS_WIFI_PASS_DEFAULT "marsmini"
+#define MARS_WIFI_SSID_DEFAULT "MARS_BaseStation"
+#define MARS_WIFI_PASS_DEFAULT "marsbasestation"
 
 #define MOTOR_LEFT_LEAD_PWM 2   // White  - M2B (left reverse)
 #define MOTOR_LEFT_LEAD_DIR 45  // Brown  - M2A (left forward)
