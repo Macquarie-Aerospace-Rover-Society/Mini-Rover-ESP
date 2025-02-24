@@ -11,13 +11,13 @@
 #define MARS_WIFI_SSID_DEFAULT "MARS_BaseStation"
 #define MARS_WIFI_PASS_DEFAULT "marsbasestation"
 
-#define MOTOR_LEFT_LEAD_PWM 45  // Brown  - M2A (left forward)
-#define MOTOR_LEFT_LEAD_DIR 2   // White  - M2B (left reverse)
+#define MOTOR_LEFT_LEAD_PWM 21   // White  - M2B (left reverse)
+#define MOTOR_LEFT_LEAD_DIR 47  // Brown  - M2A (left forward)
 // #define MOTOR_LEFT_REAR_PWM
 // #define MOTOR_LEFT_REAR_DIR
 
 
-#define MOTOR_RIGHT_LEAD_PWM 47  // Yellow - M1A (right reverse)
+#define MOTOR_RIGHT_LEAD_PWM 45  // Yellow - M1A (right reverse)
 #define MOTOR_RIGHT_LEAD_DIR 48  // Orange - M1B (right forward)
 // #define MOTOR_RIGHT_REAR_PWM
 // #define MOTOR_RIGHT_REAR_DIR
